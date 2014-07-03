@@ -1,0 +1,7 @@
+Revision history for Perinci-CmdLine-Easy
+
+1.16     2014-07-03 (SHARYANTO)
+
+         - First release, split from Perinci-CmdLine because I now do plan a
+           non-OO version but different from this one.
+

@@ -1,0 +1,116 @@
+NAME
+    Perinci::CmdLine::Easy - A simple interface to run a subroutine as
+    command-line app
+
+VERSION
+    This document describes version 1.16 of Perinci::CmdLine::Easy (from
+    Perl distribution Perinci-CmdLine-Easy), released on 2014-07-03.
+
+SYNOPSIS
+    In your command-line script (e.g. named list-cpan-dists):
+
+     use JSON qw(decode_json);
+     use LWP::Simple;
+     use Perinci::CmdLine::Easy qw(run_cmdline_app);
+     run_cmdline_app(
+         summary => "List CPAN distributions that belong to an author",
+         sub     => sub {
+             my $cpanid = shift or die "Please supply CPAN ID\n";
+             my $res = get "http://api.metacpan.org/v0/release/_search?q=author:".
+                 uc($cpanid)."%20AND%20status:latest&fields=name&size=5000"
+                 or die "Can't query MetaCPAN";
+             $res = $json->decode($res);
+             die "MetaCPAN timed out\n" if $res->{timed_out};
+             my @dists;
+             for my $hit (@{ $res->{hits}{hits} }) {
+                 my $dist = $hit->{fields}{name};
+                 $dist =~ s/-\d.+//;
+                 push @dists, $dist;
+             }
+             \@dists;
+         },
+         argv    => [qw/cpanid*/],
+     );
+
+    To run this program:
+
+     % list-cpan-dists --help ;# display help message
+     % LANG=id_ID list-cpan-dists --help ;# display help message in Indonesian
+     % list-cpan-dists SHARYANTO
+
+    To do bash tab completion:
+
+     % complete -C list-cpan-dists list-cpan-dists
+     % list-cpan-dists <tab> ;# completes to --help, --version, --cpanid, etc
+     % list-cpan-dists --c<tab> ;# completes to --cpanid
+
+DESCRIPTION
+    Perinci::CmdLine::Easy provides an easier alternative to
+    Perinci::CmdLine. You do not need to know any Rinci or Riap concepts, or
+    provide your own metadata. Just supply the subroutine, summary, list of
+    arguments, and you're good to go. Of course, if you need more
+    customization, there's Perinci::CmdLine.
+
+    What you'll get:
+
+    *   Command-line options parsing
+
+    *   Help message (supports translation)
+
+    *   Tab completion for bash
+
+    *   Formatting of output (supports complex data structure)
+
+    *   Logging
+
+FUNCTIONS
+  run_cmdline_app(%args) -> any
+    A simple interface to run a subroutine as command-line app.
+
+    Arguments ('*' denotes required arguments):
+
+    *   argv => *array* (default: [])
+
+        List of arguments.
+
+        Each argument is NAME, NAME* (marking required argument), or NAME+
+        (marking greedy argument, where the rest of command-line arguments
+        will be fed into this array).
+
+    *   description => *str*
+
+    *   sub* => *any*
+
+        Coderef or subroutine name.
+
+    *   summary => *str*
+
+    Return value:
+
+SEE ALSO
+    Perinci::CmdLine
+
+HOMEPAGE
+    Please visit the project's homepage at
+    <https://metacpan.org/release/Perinci-CmdLine-Easy>.
+
+SOURCE
+    Source repository is at
+    <https://github.com/sharyanto/perl-Perinci-CmdLine-Easy>.
+
+BUGS
+    Please report any bugs or feature requests on the bugtracker website
+    <https://rt.cpan.org/Public/Dist/Display.html?Name=Perinci-CmdLine-Easy>
+
+    When submitting a bug or request, please include a test-file or a patch
+    to an existing test-file that illustrates the bug or desired feature.
+
+AUTHOR
+    Steven Haryanto <stevenharyanto@gmail.com>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2014 by Steven Haryanto.
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
+
